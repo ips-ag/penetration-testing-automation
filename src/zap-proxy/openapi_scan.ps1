@@ -39,7 +39,7 @@ if (-Not (Test-Path $workDir)) {
 }
 
 Write-Output "🚀 Pulling OWASP ZAP latest image..."
-# Pull the latest zaproxy/zap-stable image
+# Pull the latest image ghcr.io/zaproxy/zaproxy OR zaproxy/zap-stable
 docker image pull ghcr.io/zaproxy/zaproxy:latest
 
 # Step 2: Run OWASP ZAP Docker Scan with the Token
