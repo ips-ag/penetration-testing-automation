@@ -1,1 +1,0 @@
-./scan_locally.ps1 -envFile "local.config.env"

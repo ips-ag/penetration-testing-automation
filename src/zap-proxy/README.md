@@ -19,7 +19,7 @@ Ensure you have the following installed on your system:
 ### **1️⃣ Local Execution (Using `.env` file)**
 
 #### **Step 1: Create a `.env` file**
-Create a file named `.env` in the root directory and add the following details:
+Create a file named `local.config.env` in the root directory and add the following details:
 
 ```ini
 CLIENT_ID=my-client-id
@@ -32,7 +32,7 @@ WORK_DIR=D:\Zap
 
 #### **Step 2: Executing with the env file**
 ```powershell
-.\scan_locally.ps1 -envFile your-local.env
+./scan_locally.ps1 -envFile "local.config.env"
 ```
 
 ---
