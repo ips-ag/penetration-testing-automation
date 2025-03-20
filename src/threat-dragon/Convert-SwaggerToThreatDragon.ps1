@@ -1,6 +1,7 @@
 param (
     [string]$swaggerUrl = "http://localhost:5000/swagger/v1/swagger.json", # Default Swagger URL
-    [string]$outputFolder = "." # Default output folder (current directory)
+    [string]$outputFolder = ".", # Default output folder (current directory)
+    [string] $fileName = "threat-model.json"
 )
 
 # Ensure output folder exists
@@ -10,7 +11,7 @@ if (!(Test-Path $outputFolder)) {
 }
 
 # Define output file path
-$outputFile = Join-Path -Path $outputFolder -ChildPath "threat-model.json"
+$outputFile = Join-Path -Path $outputFolder -ChildPath $fileName
 
 # Download Swagger JSON
 Write-Host "Downloading Swagger JSON from: $swaggerUrl"

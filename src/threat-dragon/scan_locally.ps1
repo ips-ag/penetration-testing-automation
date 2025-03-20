@@ -34,5 +34,4 @@ foreach ($key in $loadedVars.Keys) {
 # Execute the main script
 .\Invoke-Scan.ps1 `
     -swaggerUrl $env:TARGET_URL `
-    -dataPath $env:WORK_DIR `
-    -reportPath $env:WORK_DIR
+    -workDir $env:WORK_DIR `
