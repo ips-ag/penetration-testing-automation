@@ -21,16 +21,24 @@ Ensure you have the following installed on your system:
 #### **Step 1: Create a `.env` file**
 Create a file named `local.config.env` in the root directory and add the following details:
 
+For API Scan - see [config.api-scan.env](./config.api-scan.env)
 ```ini
-CLIENT_ID=my-client-id
-CLIENT_SECRET=my-secret
-SCOPE=read write
+CLIENT_ID=your-client-id
+CLIENT_SECRET=your-client-secret
+SCOPE=your-scope
 TOKEN_URI=https://example.com/oauth/token
-SWAGGER_JSON=https://example.com/swagger.json
+TARGET_URL=https://example.com/swagger.json
 WORK_DIR=D:\Zap
+SCAN_TYPE=API
+```
+For Baseline/Full Scan - see [config.full-scan.env](config.full-scan.env) and [config.baseline-scan.env](./config.baseline-scan.env)
+```ini
+TARGET_URL=https://github.com
+WORK_DIR=D:\Zap
+SCAN_TYPE=Baseline
 ```
 
-#### **Step 2: Executing with the env file**
+#### **Step 2: Execute the Script Using the `.env` File**
 ```powershell
 ./scan_locally.ps1 -envFile "local.config.env"
 ```
@@ -39,31 +47,7 @@ WORK_DIR=D:\Zap
 
 ### **2️⃣ CI/CD Execution in Azure DevOps**
 
-#### **Step 1: Add Environment Variables to Azure DevOps Pipeline**
-In your Azure DevOps pipeline, define the environment variables under `variables`:
-
-```yaml
-variables:
-  CLIENT_ID: $(client-id)
-  CLIENT_SECRET: $(client-secret)
-  SCOPE: "read write"
-  TOKEN_URI: "https://example.com/oauth/token"
-  SWAGGER_JSON: "https://example.com/swagger.json"
-  WORK_DIR: "D:\Zap"
-```
-
-#### **Step 2: Run the PowerShell Script in Your Pipeline**
-Add the following task to your `azure-pipelines.yml` file:
-
-```yaml
-- task: PowerShell@2
-  displayName: "Run OWASP ZAP API Scan"
-  inputs:
-    targetType: 'inline'
-    script: |
-      $secureSecret = ConvertTo-SecureString $env:CLIENT_SECRET -AsPlainText -Force
-      ./openapi_scan.ps1 -client_id $env:CLIENT_ID -client_secret $secureSecret -scope $env:SCOPE -tokenUri $env:TOKEN_URI -swaggerJson $env:SWAGGER_JSON -workDir $env:WORK_DIR
-```
+Refer to the [`azure-pipelines.yml`](./azure-pipelines.yml) file for configuring the scan in your Azure DevOps pipeline.
 
 ---
 
@@ -77,17 +61,18 @@ The script accepts the following parameters:
 | `-clientSecret`  | OAuth client secret (can be set via environment variables). |
 | `-scope`         | OAuth scope (optional, defaults to `read`). |
 | `-tokenUri`      | OAuth token endpoint. |
-| `-swaggerJson`   | URL to the Swagger API specification. |
+| `-targetUrl`     | URL to the Swagger API specification or target application. |
 | `-workDir`       | Local working directory for ZAP files. |
+| `-scanType`      | Type of scan (`API`, `Baseline`, or `Full`). |
 
 ---
 
 ## 📊 **Interpreting Results**
-After execution, ZAP will generate a report in **HTML format** inside the specified `WORK_DIR`. 
+After execution, ZAP will generate a report in **HTML and JSON format** inside the specified `WORK_DIR`. 
 
 ### **Example Report Path**
 ```
-D:\Zap\zap_report.html
+D:\Zap\*.(html/json)
 ```
 
 To review scan results:
@@ -108,4 +93,3 @@ Contributions are welcome! To contribute:
 
 ## 📄 **License**
 This project is licensed under the [MIT License](LICENSE).
-

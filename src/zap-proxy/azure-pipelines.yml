@@ -15,14 +15,15 @@ steps:
       $env:CLIENT_SECRET = "$(CLIENT_SECRET)"
       $env:SCOPE = "$(SCOPE)"
       $env:TOKEN_URI = "$(TOKEN_URI)"
-      $env:SWAGGER_JSON = "$(SWAGGER_JSON)"
+      $env:TARGET_URL = "$(TARGET_URL)"
       $env:WORK_DIR = "$(WORK_DIR)"
+      $env:SCAN_TYPE = "$(SCAN_TYPE)"
 
       # Convert CLIENT_SECRET to SecureString
       $secureSecret = ConvertTo-SecureString $env:CLIENT_SECRET -AsPlainText -Force
 
       # Run the script
-      ./openapi_scan.ps1 -client_id $env:CLIENT_ID -client_secret $secureSecret -scope $env:SCOPE -tokenUri $env:TOKEN_URI -swaggerJson $env:SWAGGER_JSON -workDir $env:WORK_DIR
+      ./Invoke-Scan.ps1 -scanType $env:SCAN_TYPE -client_id $env:CLIENT_ID -client_secret $secureSecret -scope $env:SCOPE -tokenUri $env:TOKEN_URI -targetUrl $env:TARGET_URL -workDir $env:WORK_DIR
 
   env:
     ZAP_AUTH_HEADER: "Authorization"

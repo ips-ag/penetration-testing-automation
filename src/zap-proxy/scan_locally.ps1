@@ -36,4 +36,11 @@ Write-Output ""
 $secureSecret = ConvertTo-SecureString $env:CLIENT_SECRET -AsPlainText -Force
 
 # Execute the main script
-.\openapi_scan.ps1 -client_id $env:CLIENT_ID -client_secret $secureSecret -scope $env:SCOPE -tokenUri $env:TOKEN_URI -swaggerJson $env:SWAGGER_JSON -workDir $env:WORK_DIR
+.\Invoke-Scan.ps1 `
+    -scanType $env:SCAN_TYPE `
+    -client_id $env:CLIENT_ID `
+    -client_secret $secureSecret `
+    -scope $env:SCOPE `
+    -tokenUri $env:TOKEN_URI `
+    -targetUrl $env:TARGET_URL `
+    -workDir $env:WORK_DIR
