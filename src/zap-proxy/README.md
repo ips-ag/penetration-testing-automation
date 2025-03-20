@@ -21,20 +21,26 @@ Ensure you have the following installed on your system:
 #### **Step 1: Create a `.env` file**
 Create a file named `local.config.env` in the root directory and add the following details:
 
-For API Scan - see [config.api-scan.env](./config.api-scan.env)
+For Auth API Scan - see [config.authapi-scan.env](./config.authapi-scan.env)
 ```ini
 CLIENT_ID=your-client-id
 CLIENT_SECRET=your-client-secret
 SCOPE=your-scope
 TOKEN_URI=https://example.com/oauth/token
 TARGET_URL=https://example.com/swagger.json
-WORK_DIR=D:\Zap
-SCAN_TYPE=API
+WORK_DIR=D:\OWASP\Zap
+SCAN_TYPE=AuthAPI
+```
+For No Auth API Scan - see [config.noauthapi-scan.env](./config.noauthapi-scan.env)
+```ini
+TARGET_URL=https://petstore.swagger.io/v2/swagger.json
+WORK_DIR=D:\OWASP\Zap
+SCAN_TYPE=NoAuthAPI
 ```
 For Baseline/Full Scan - see [config.full-scan.env](config.full-scan.env) and [config.baseline-scan.env](./config.baseline-scan.env)
 ```ini
 TARGET_URL=https://github.com
-WORK_DIR=D:\Zap
+WORK_DIR=D:\OWASP\Zap
 SCAN_TYPE=Baseline
 ```
 

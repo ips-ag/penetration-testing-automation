@@ -1,50 +1,50 @@
 # Parameter block must be at the top of the script
 param (
-    [Parameter(Mandatory=$true)]
-    [ValidateSet("Baseline", "Full", "API", IgnoreCase = $true)]
+    [Parameter(Mandatory = $true)]
+    [ValidateSet("Baseline", "Full", "AuthAPI", "NoAuthAPI", IgnoreCase = $true)]
     [string]$scanType,
 
     [ValidateScript({
-        if ($scanType -ieq "api" -and [string]::IsNullOrEmpty($_)) {
-            throw "client_id is required for API scan."
-        }
-        $true
-    })]
+            if ($scanType -ieq "authapi" -and [string]::IsNullOrEmpty($_)) {
+                throw "client_id is required for AuthAPI scan."
+            }
+            $true
+        })]
     [string]$client_id,
 
     [ValidateScript({
-        if ($scanType -ieq "api" -and -not $_) {
-            throw "client_secret is required for API scan."
-        }
-        $true
-    })]
+            if ($scanType -ieq "authapi" -and -not $_) {
+                throw "client_secret is required for AuthAPI scan."
+            }
+            $true
+        })]
     [SecureString]$client_secret,
 
     [ValidateScript({
-        if ($scanType -ieq "api" -and [string]::IsNullOrEmpty($_)) {
-            throw "scope is required for API scan."
-        }
-        $true
-    })]
+            if ($scanType -ieq "authapi" -and [string]::IsNullOrEmpty($_)) {
+                throw "scope is required for AuthAPI scan."
+            }
+            $true
+        })]
     [string]$scope,
 
     [ValidateScript({
-        if ($scanType -ieq "api" -and [string]::IsNullOrEmpty($_)) {
-            throw "tokenUri is required for API scan."
-        }
-        $true
-    })]
+            if ($scanType -ieq "authapi" -and [string]::IsNullOrEmpty($_)) {
+                throw "tokenUri is required for AuthAPI scan."
+            }
+            $true
+        })]
     [string]$tokenUri,
 
     [ValidateScript({
-        if ($scanType -ieq "api" -and ($_ -notmatch "swagger.json$")) {
-            throw "targetUrl must end with 'swagger.json' for API scan."
-        }
-        $true
-    })]
+            if (($scanType -ieq "authapi" -or $scanType -ieq "noauthapi") -and ($_ -notmatch "swagger.json$")) {
+                throw "targetUrl must end with 'swagger.json' for API scan."
+            }
+            $true
+        })]
     [string]$targetUrl,
 
-    [Parameter(Mandatory=$true)]
+    [Parameter(Mandatory = $true)]
     [string]$workDir
 )
 
@@ -52,7 +52,8 @@ param (
 try {
     $null = Get-Command docker -ErrorAction Stop
     docker info --format '{{.ServerVersion}}' | Out-Null
-} catch {
+}
+catch {
     Write-Error "Docker is not installed or not running. Please ensure Docker is available."
     exit 1
 }
@@ -69,30 +70,32 @@ docker image pull ghcr.io/zaproxy/zaproxy:latest | Out-Null
 $zapScript = switch ($scanType.ToLower()) {
     "baseline" { "zap-baseline.py" }
     "full"     { "zap-full-scan.py" }
-    "api"      { "zap-api-scan.py" }
+    "authapi"  { "zap-api-scan.py" }
+    "noauthapi"{ "zap-api-scan.py" }
 }
 
 $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
 $reportName = "$($zapScript -replace '\.py$','')_$timestamp"
 $volumeMapping = if ($PSVersionTable.PSVersion.Major -ge 6) {
     "$($workDir):/zap/wrk"
-} else {
+}
+else {
     "$($workDir -replace '\\','/'):/zap/wrk"
 }
 
 Write-Output "🚀 Running OWASP ZAP $scanType scan..."
-if ($scanType -ieq "api") {
+if ($scanType -ieq "authapi") {
     try {
         $cred = New-Object System.Management.Automation.PSCredential("dummy", $client_secret)
         $client_secret_plain = $cred.GetNetworkCredential().Password
 
         $tokenResponse = Invoke-RestMethod -Method Post -Uri $tokenUri `
             -Body @{
-                grant_type    = "client_credentials"
-                client_id     = $client_id
-                client_secret = $client_secret_plain
-                scope         = $scope
-            } `
+            grant_type    = "client_credentials"
+            client_id     = $client_id
+            client_secret = $client_secret_plain
+            scope         = $scope
+        } `
             -ErrorAction Stop
 
         # if (-not $tokenResponse?.access_token) {
@@ -101,10 +104,12 @@ if ($scanType -ieq "api") {
 
         $access_token = $tokenResponse.access_token
         Write-Output "✅ Access Token Retrieved!"
-    } catch {
+    }
+    catch {
         Write-Error "❌ Failed to Get Access Token: $($_.Exception.Message)"
         exit 1
-    } finally {
+    }
+    finally {
         $client_secret_plain = $null
     }
 
@@ -116,7 +121,16 @@ if ($scanType -ieq "api") {
         -f openapi `
         -r "$reportName.html" `
         -J "$reportName.json"
-} else {
+}
+elseif ($scanType -ieq "noauthapi") {
+    docker run --rm -v $volumeMapping `
+        -t ghcr.io/zaproxy/zaproxy:latest $zapScript `
+        -t $targetUrl `
+        -f openapi `
+        -r "$reportName.html" `
+        -J "$reportName.json"
+}
+else {
     docker run --rm -v $volumeMapping `
         -t ghcr.io/zaproxy/zaproxy:latest $zapScript `
         -t $targetUrl `
