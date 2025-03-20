@@ -32,6 +32,7 @@ foreach ($key in $loadedVars.Keys) {
 }
 
 # Execute the main script
-.\Convert-SwaggerToThreatDragon.ps1 `
+.\Invoke-Scan.ps1 `
     -swaggerUrl $env:TARGET_URL `
-    -outputFolder $env:WORK_DIR
+    -dataPath $env:WORK_DIR `
+    -reportPath $env:WORK_DIR
