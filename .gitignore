@@ -1,1 +1,1 @@
-src/zap-proxy/local.config.env
+src/**/local.config.env

@@ -31,15 +31,7 @@ foreach ($key in $loadedVars.Keys) {
     }
 }
 
-# Convert CLIENT_SECRET to SecureString
-$secureSecret = ConvertTo-SecureString $env:CLIENT_SECRET -AsPlainText -Force
-
 # Execute the main script
-.\Invoke-Scan.ps1 `
-    -scanType $env:SCAN_TYPE `
-    -client_id $env:CLIENT_ID `
-    -client_secret $secureSecret `
-    -scope $env:SCOPE `
-    -tokenUri $env:TOKEN_URI `
-    -targetUrl $env:TARGET_URL `
-    -workDir $env:WORK_DIR
+.\Convert-SwaggerToThreatDragon.ps1 `
+    -swaggerUrl $env:TARGET_URL `
+    -outputFolder $env:WORK_DIR
