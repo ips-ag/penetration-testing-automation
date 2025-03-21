@@ -84,58 +84,63 @@ else {
 }
 
 Write-Output "🚀 Running OWASP ZAP $scanType scan..."
-if ($scanType -ieq "authapi") {
-    try {
-        $cred = New-Object System.Management.Automation.PSCredential("dummy", $client_secret)
-        $client_secret_plain = $cred.GetNetworkCredential().Password
-
-        $tokenResponse = Invoke-RestMethod -Method Post -Uri $tokenUri `
-            -Body @{
-            grant_type    = "client_credentials"
-            client_id     = $client_id
-            client_secret = $client_secret_plain
-            scope         = $scope
-        } `
-            -ErrorAction Stop
-
-        # if (-not $tokenResponse?.access_token) {
-        #     throw "Invalid token response format! Expected 'access_token' but got: $($tokenResponse | ConvertTo-Json -Depth 3)"
-        # }
-
-        $access_token = $tokenResponse.access_token
-        Write-Output "✅ Access Token Retrieved!"
+try {
+    if ($scanType -ieq "authapi") {
+        try {
+            $cred = New-Object System.Management.Automation.PSCredential("dummy", $client_secret)
+            $client_secret_plain = $cred.GetNetworkCredential().Password
+    
+            $tokenResponse = Invoke-RestMethod -Method Post -Uri $tokenUri `
+                -Body @{
+                grant_type    = "client_credentials"
+                client_id     = $client_id
+                client_secret = $client_secret_plain
+                scope         = $scope
+            } `
+                -ErrorAction Stop
+    
+            $access_token = $tokenResponse.access_token
+            Write-Output "✅ Access Token Retrieved!"
+        }
+        catch {
+            Write-Error "❌ Failed to Get Access Token: $($_.Exception.Message)"
+            exit 1
+        }
+        finally {
+            $client_secret_plain = $null
+        }
+    
+        docker run --rm -v $volumeMapping `
+            -e ZAP_AUTH_HEADER_VALUE="Bearer $access_token" `
+            -e ZAP_AUTH_HEADER="Authorization" `
+            -t ghcr.io/zaproxy/zaproxy:latest $zapScript `
+            -t $targetUrl `
+            -f openapi `
+            -r "$reportName.html" `
+            -J "$reportName.json"
     }
-    catch {
-        Write-Error "❌ Failed to Get Access Token: $($_.Exception.Message)"
-        exit 1
+    elseif ($scanType -ieq "noauthapi") {
+        docker run --rm -v $volumeMapping `
+            -t ghcr.io/zaproxy/zaproxy:latest $zapScript `
+            -t $targetUrl `
+            -f openapi `
+            -r "$reportName.html" `
+            -J "$reportName.json"
     }
-    finally {
-        $client_secret_plain = $null
-    }
+    else {
+        docker run --rm -v $volumeMapping `
+            -t ghcr.io/zaproxy/zaproxy:latest $zapScript `
+            -t $targetUrl `
+            -r "$reportName.html" `
+            -J "$reportName.json"
+    }    
 
-    docker run --rm -v $volumeMapping `
-        -e ZAP_AUTH_HEADER_VALUE="Bearer $access_token" `
-        -e ZAP_AUTH_HEADER="Authorization" `
-        -t ghcr.io/zaproxy/zaproxy:latest $zapScript `
-        -t $targetUrl `
-        -f openapi `
-        -r "$reportName.html" `
-        -J "$reportName.json"
+    Write-Output "✅ Scan Completed! Reports saved in ${workDir}\${reportName}.(html/json)"
 }
-elseif ($scanType -ieq "noauthapi") {
-    docker run --rm -v $volumeMapping `
-        -t ghcr.io/zaproxy/zaproxy:latest $zapScript `
-        -t $targetUrl `
-        -f openapi `
-        -r "$reportName.html" `
-        -J "$reportName.json"
+catch {
+    Write-Error "❌ Failed to run OWASP ZAP $scanType scan: $($_.Exception.Message)"
+    exit 1
 }
-else {
-    docker run --rm -v $volumeMapping `
-        -t ghcr.io/zaproxy/zaproxy:latest $zapScript `
-        -t $targetUrl `
-        -r "$reportName.html" `
-        -J "$reportName.json"
+finally {
+    <#Do this after the try block regardless of whether an exception occurred or not#>
 }
-
-Write-Output "✅ Scan Completed! Reports saved in ${workDir}\${reportName}.(html/json)"
