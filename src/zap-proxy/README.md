@@ -19,9 +19,9 @@ Ensure you have the following installed on your system:
 ### **1️⃣ Local Execution (Using `.env` file)**
 
 #### **Step 1: Create a `.env` file**
-Create a file named `local.config.env` in the root directory and add the following details:
+Create a file named `local.env` in the `config` directory and add the following details:
 
-For Auth API Scan - see [config.authapi-scan.env](./config.authapi-scan.env)
+For Auth API Scan - see [auth-api.env](./config/auth-api.env)
 ```ini
 CLIENT_ID=your-client-id
 CLIENT_SECRET=your-client-secret
@@ -31,13 +31,13 @@ TARGET_URL=https://example.com/swagger.json
 WORK_DIR=D:\OWASP\Zap
 SCAN_TYPE=AuthAPI
 ```
-For No Auth API Scan - see [config.noauthapi-scan.env](./config.noauthapi-scan.env)
+For No Auth API Scan - see [no-auth-api.env](./config/no-auth-api.env)
 ```ini
 TARGET_URL=https://petstore.swagger.io/v2/swagger.json
 WORK_DIR=D:\OWASP\Zap
 SCAN_TYPE=NoAuthAPI
 ```
-For Baseline/Full Scan - see [config.full-scan.env](config.full-scan.env) and [config.baseline-scan.env](./config.baseline-scan.env)
+For Baseline/Full Scan - see [full.env](./config/full.env) and [baseline.env](./config/baseline.env)
 ```ini
 TARGET_URL=https://github.com
 WORK_DIR=D:\OWASP\Zap
@@ -46,7 +46,7 @@ SCAN_TYPE=Baseline
 
 #### **Step 2: Execute the Script Using the `.env` File**
 ```powershell
-./scan_locally.ps1 -envFile "local.config.env"
+./scan_locally.ps1 -envFile "config/local.env"
 ```
 
 ---
