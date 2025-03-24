@@ -20,7 +20,7 @@ function Invoke-ZAP {
         Write-Host "🚀 Running OWASP ZAP (DAST) in Docker on: ${TargetURL}" -ForegroundColor Cyan
         Write-Host "📁 Saving report to: ${ReportFile}" -ForegroundColor Yellow
     
-        $dockerCmd = "docker run --rm -v `"${ResolvedOutputPath}:/zap/wrk`" -t ghcr.io/zaproxy/zaproxy:latest zap-full-scan.py -t `"$TargetURL`" -r $ReportFile -a"
+        $dockerCmd = "docker run --rm -v `"${ResolvedOutputPath}:/zap/wrk`" -t ghcr.io/zaproxy/zaproxy:latest zap-full-scan.py -t `"$TargetURL`" -r $ReportFile"
 
         # Execute the Docker command using the Invoke-DockerCommand function
         .${PSScriptRoot}\Invoke-DockerCommand.ps1 -DockerCommand $dockerCmd
