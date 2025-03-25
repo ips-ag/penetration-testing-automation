@@ -38,6 +38,6 @@ $secureSecret = ConvertTo-SecureString $env:NVD_API_KEY -AsPlainText -Force
 .\Pentest-Run.ps1 `
     -ScanType $env:SCAN_TYPE `
     -TargetPath $env:TARGET_PATH `
-    -TargetURL $TARGET_URL `
+    -TargetURL $env:TARGET_URL `
     -OutputPath $env:OUTPUT_PATH `
     -NVDApiKey $secureSecret
