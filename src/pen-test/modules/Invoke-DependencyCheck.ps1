@@ -1,7 +1,8 @@
 function Invoke-DependencyCheck {
     param (
         [string]$TargetPath = "$PWD",
-        [string]$OutputPath = "$PWD"
+        [string]$OutputPath = "$PWD",
+        [securestring]$NVDApiKey
     )
 
     try {
