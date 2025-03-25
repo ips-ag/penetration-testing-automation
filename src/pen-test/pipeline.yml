@@ -1,0 +1,53 @@
+name: Security Scan CI/CD
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+    branches:
+      - main
+
+jobs:
+  security_scan:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Run security tests
+        run: |
+          # Run your security scanning tools here
+          echo "Running security tests..."
+
+      - name: Generate remediation suggestions
+        shell: pwsh
+        run: |
+          ./Remediation-Suggestions.ps1
+
+      - name: Post remediation comments
+        if: always()
+        run: |
+          echo "Posting remediation comments to PR..."
+
+  # Azure DevOps equivalent YAML
+  # trigger:
+  #   branches:
+  #     include:
+  #       - main
+  # 
+  # jobs:
+  # - job: SecurityScan
+  #   pool:
+  #     vmImage: 'ubuntu-latest'
+  #   steps:
+  #   - checkout: self
+  #   - script: |
+  #       echo "Running security tests..."
+  #     displayName: 'Run security tests'
+  #   - script: |
+  #       pwsh ./Remediation-Suggestions.ps1
+  #     displayName: 'Generate remediation suggestions'
+  #   - script: |
+  #       echo "Posting remediation comments to pipeline logs..."
+  #     displayName: 'Post remediation comments'

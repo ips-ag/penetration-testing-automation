@@ -18,7 +18,13 @@ function Invoke-DependencyCheck {
         Write-Host "🚀 Running OWASP Dependency-Check (SCA) in Docker on: ${ResolvedTargetPath}" -ForegroundColor Cyan
         Write-Host "📁 Saving report to: ${ReportFile}" -ForegroundColor Yellow
 
-        $dockerCmd = "docker run --rm -v `"${ResolvedTargetPath}:/src`" -v `"${ResolvedOutputPath}:/report`" owasp/dependency-check --scan /src --format HTML --out $ReportFile"
+        # Decrypt SecureString API Key
+        $PlainNVDApiKey = [Runtime.InteropServices.Marshal]::PtrToStringAuto(
+            [Runtime.InteropServices.Marshal]::SecureStringToBSTR($NVDApiKey)
+        )
+
+        # Construct the Docker command with API Key
+        $dockerCmd = "docker run --rm -v `"${ResolvedTargetPath}:/src`" -v `"${ResolvedOutputPath}:/report`" owasp/dependency-check --scan /src --format HTML --out $ReportFile --nvdApiKey $PlainNVDApiKey"
 
         # Execute the Docker command using the Invoke-DockerCommand function
         .${PSScriptRoot}\Invoke-DockerCommand.ps1 -DockerCommand $dockerCmd
@@ -29,5 +35,4 @@ function Invoke-DependencyCheck {
         Write-Error "❌ Dependency-Check scan failed: $($_.Exception.Message)"
         exit 1
     }
-    
 }
