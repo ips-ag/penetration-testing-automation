@@ -20,7 +20,7 @@ function Invoke-IaCSecurity {
         $dockerCmd = "docker run --rm " `
         + "-v `"${ResolvedTargetPath}:/src`" " `
         + "-v `"${ResolvedOutputPath}:/report`" " `
-        + "bridgecrew/checkov -d /src --output cli " `
+        + "bridgecrew/checkov -d /src --output json " `
         + "--output-file-path /report"
 
         # Execute the Docker command using the Invoke-DockerCommand function
