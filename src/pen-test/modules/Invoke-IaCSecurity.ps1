@@ -12,17 +12,21 @@ function Invoke-IaCSecurity {
             New-Item -ItemType Directory -Path $ResolvedOutputPath -Force | Out-Null
         }
 
-        $ReportFile = "/report/iac-report.txt"
+        $ReportFile = "$ResolvedOutputPath\iac-report.txt"
 
         Write-Host "🚀 Running Checkov (IaC Security Scan) in Docker on: ${ResolvedTargetPath}" -ForegroundColor Cyan
         Write-Host "📁 Saving report to: ${ReportFile}" -ForegroundColor Yellow
 
-        $dockerCmd = "docker run --rm -v `"${ResolvedTargetPath}:/src`" -v `"${ResolvedOutputPath}:/report`" bridgecrew/checkov -d /src --output cli > $ReportFile"
+        $dockerCmd = "docker run --rm " `
+        + "-v `"${ResolvedTargetPath}:/src`" " `
+        + "-v `"${ResolvedOutputPath}:/report`" " `
+        + "bridgecrew/checkov -d /src --output cli " `
+        + "--output-file-path /report"
 
         # Execute the Docker command using the Invoke-DockerCommand function
         .${PSScriptRoot}\Invoke-DockerCommand.ps1 -DockerCommand $dockerCmd
 
-        Write-Host "✅ Checkov scan completed. Report saved to: ${ResolvedOutputPath}\iac-report.txt" -ForegroundColor Green
+        Write-Host "✅ Checkov scan completed. Report saved to: ${ReportFile}" -ForegroundColor Green
     }
     catch {
         Write-Error "❌ Checkov scan failed: $($_.Exception.Message)"
