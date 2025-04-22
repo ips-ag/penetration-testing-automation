@@ -1,0 +1,29 @@
+trigger:
+- main  # Change this to your branch name
+
+pool:
+  vmImage: 'ubuntu-latest'  # Use Windows if needed: windows-latest
+
+steps:
+- task: PowerShell@2
+  displayName: 'Run OWASP ZAP Scan'
+  inputs:
+    targetType: 'inline'
+    script: |
+      # Set environment variables from pipeline variables
+      $env:CLIENT_ID = "$(CLIENT_ID)"
+      $env:CLIENT_SECRET = "$(CLIENT_SECRET)"
+      $env:SCOPE = "$(SCOPE)"
+      $env:TOKEN_URI = "$(TOKEN_URI)"
+      $env:TARGET_URL = "$(TARGET_URL)"
+      $env:WORK_DIR = "$(WORK_DIR)"
+      $env:SCAN_TYPE = "$(SCAN_TYPE)"
+
+      # Convert CLIENT_SECRET to SecureString
+      $secureSecret = ConvertTo-SecureString $env:CLIENT_SECRET -AsPlainText -Force
+
+      # Run the script
+      ./Invoke-Scan.ps1 -scanType $env:SCAN_TYPE -client_id $env:CLIENT_ID -client_secret $secureSecret -scope $env:SCOPE -tokenUri $env:TOKEN_URI -targetUrl $env:TARGET_URL -workDir $env:WORK_DIR
+
+  env:
+    ZAP_AUTH_HEADER: "Authorization"

@@ -1,0 +1,1 @@
+OWASP Threat Dragon is not a penetration testing tool. It is a threat modeling tool that helps security teams and developers identify, analyze, and mitigate potential security risks in applications before they are developed or deployed.
